@@ -4,13 +4,12 @@ from parse_excel import parse_excel
 # define credentials
 credentials = {
     'POSTGRES_ADDRESS':
-    'database-1.cqt2ynkwdbyq.us-east-2.rds.amazonaws.com',  # change to your endpoint
+    'database-1.cls16f34591y.us-west-2.rds.amazonaws.com',  # change to your endpoint
     'POSTGRES_PORT': '5432',  # change to your port
     'POSTGRES_USERNAME': 'postgres',  # change to your username
     'POSTGRES_PASSWORD': '2xfydp2021!',  # change to your password
     'POSTGRES_DBNAME': 'postgres'
 }  # change to your db name
-#TODO: atm allowing inbound traffic from my IP address but might need to
 # create connection and cursor
 conn = ps.connect(host=credentials['POSTGRES_ADDRESS'],
                   database=credentials['POSTGRES_DBNAME'],
@@ -26,7 +25,6 @@ cur = conn.cursor()
 #                 transparency integer,
 #                 worker_emp integer,
 #                 env_mgmt integer,
-#                 nonresponsive integer,
 #                 url varchar(255)
 #                 );""")
 # # Commit table creation
@@ -34,12 +32,14 @@ cur = conn.cursor()
 # print("Table created successfully!")
 
 #insert data
-data = parse_excel()
-insert_query = """INSERT INTO brand
-                   (id, name, transparency, worker_emp, env_mgmt, nonresponsive)
-                   VALUES (%s, %s, %s, %s, %s, %s);"""
-cur.executemany(insert_query, data)
-conn.commit()
+# data = parse_excel()
+# print(data)
+# insert_query = """INSERT INTO brand
+#                    (id, name, transparency, worker_emp, env_mgmt)
+#                    VALUES (%s, %s, %s, %s, %s);"""
+# cur.executemany(insert_query, data)
+# conn.commit()
+# print("Table updated successfully!")
 
 #drop table
 # cur.execute("""DROP TABLE Brand""")
