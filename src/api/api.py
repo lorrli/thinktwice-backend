@@ -16,7 +16,7 @@ app = Flask(__name__)
 # def salvador():
 #     return "Hello, Lor"
 '''
-example api request: http://127.0.0.1:5000/index?brand=Patagonia
+example api request: http://127.0.0.1:5000/get_brand_data?brand=Patagonia
 
 links: https://hackersandslackers.com/database-queries-sqlalchemy-orm/
         https://www.digitalocean.com/community/tutorials/processing-incoming-request-data-in-flask
