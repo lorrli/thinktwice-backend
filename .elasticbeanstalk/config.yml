@@ -1,6 +1,6 @@
 branch-defaults:
   main:
-    environment: null
+    environment: thinktwice-backend-flask-api
     group_suffix: null
 global:
   application_name: thinktwice-backend-api
