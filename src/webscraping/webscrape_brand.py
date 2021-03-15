@@ -89,10 +89,26 @@ def scrape_brand(brand, product_url):
         #Product price
         scrape_data['product_price'] = driver.find_element_by_class_name('pdp-pricing__selected ').text    
 
+    elif brand == 'adidas':
+        scrape_data['product_name'] = driver.find_element_by_xpath("//*[@id='app']/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/h1/span").text
+        scrape_data['product_color'] = driver.find_element_by_xpath("//*[@id='app']/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div[2]/h5/span").text
+        scrape_data['product_price'] = driver.find_element_by_xpath("//*[@id='app']/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div[2]/div/div/div").text
+        # can't find description sometimes 
+        description_button = driver.find_element_by_id("description")
+        driver.execute_script("arguments[0].scrollIntoView();", description_button)
+        description_button.click()
+        scrape_data['product_overview'] = driver.find_element_by_xpath("//*[@id='navigation-target-description']/div/div[1]/p").text
+        details_button = driver.find_element_by_id('specifications')
+        details_button.click()
+        scrape_data['product_details'] = []
+        details_title = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//*[@id='navigation-target-specifications']/div/h5")))
+        product_details_raw = driver.find_elements_by_xpath("//*[@id='navigation-target-specifications']/div/div/ul/li")
+        for detail in product_details_raw: 
+            scrape_data['product_details'].append(detail.text.lower())
+
     else: 
         print('Could not scrape site')    
         pass
     
     driver.quit() 
     return scrape_data
-
