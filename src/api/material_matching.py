@@ -27,6 +27,22 @@ def calculate_material_composition(product_details):
                             return_list[index]['percent'] = int(
                                 re.search("(\d+)%", detail).group()[:-1])
 
+    for detail in product_details: 
+        if (fuzz.partial_ratio('cashmere', detail)) > 95: 
+            cashmere_object = {'material_type': 'organic',
+                                'material': 'cashmere'}
+            try: 
+                cashmere_object['percent'] = int(re.search("(\d+)", (re.search("(\d+)% recycled " + material, detail).group())).group())
+            except:
+                cashmere_object['percent'] = None
+            
+            if not (cashmere_object['percent']):
+                try:    
+                    cashmere_object['percent'] = int(re.search("(\d+)", (re.search("(\d+)% cashmere", detail).group())).group())
+                except: 
+                    cashmere_object['percent'] = int(re.search("(\d+)%", detail).group()[:-1])
+            return_list.append(cashmere_object)
+
     # check for plastic materials
     for index, detail in enumerate(product_details):
         for material in plastic_materials:
@@ -97,3 +113,7 @@ def determine_sustainability_rating(material_comp_object):
         sus_rating_details['sus_rating'] = False
 
     return sus_rating_details
+
+print(calculate_material_composition(['95% cashmere/5% wool blend made from pre-consumer cashmere waste that’s sorted according to color and other properties, mechanically broken down and spun into new yarn', 
+'button-front closure', 'fully fashioned armholes', 'full-length sleeve', '1x1 rib finishing at neck, cuffs and hem', 'hip length', 'country of origin\nmade in china.', 
+'weight\n238 g (8.4 oz)', '95% recycled cashmere/5% wool blend made from pre-consumer cashmere waste that’s sorted according to color and other properties, mechanically broken down and spun into new yarn']))
