@@ -43,24 +43,30 @@ def get_brand_data():
     return response
 
 
+'''
+example request: 
+http://127.0.0.1:5000/scrape_product_name_overview?brand=patagonia&url=https://www.patagonia.com/product/mens-recycled-cashmere-crewneck-sweater/50525.html?dwvar_50525_color=FGE
+'''
 @application.route('/scrape_product_name_overview', methods=['GET'])
 def scrape_product_name_overview_api():
-    brand = "gap"
-    url = "https://www.gapcanada.ca/browse/product.do?pid=544841223&rrec=true&mlink=5050,12413545,PDP_gapproduct2_rr_4&clink=12413545#pdp-page-content"
+    brand = request.args.get('brand')
+    url = request.args.get('url')
     scrape_data = scrape_product_name_overview(brand, url)
-    print(scrape_data)
     response = jsonify(scrape_data)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
+'''
+example request:
+http://127.0.0.1:5000/scrape_product_details?brand=patagonia&url=https://www.patagonia.com/product/mens-recycled-cashmere-crewneck-sweater/50525.html?dwvar_50525_color=FGE
+'''
 @application.route('/scrape_product_details', methods=['GET'])
 def scrape_product_details_api():
-    brand = "adidas"
-    url = "https://www.adidas.ca/en/cropped-tee/HB4758.html"
+    brand = request.args.get('brand')
+    url = request.args.get('url')
     product_details = scrape_product_details(brand, url)
     rating_details = calculate_material_composition(product_details)
-    print(rating_details)
     response = jsonify(rating_details)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
