@@ -32,12 +32,24 @@ def calculate_material_composition(product_details):
             if (fuzz.partial_ratio(material, detail)) > 95 and (fuzz.partial_ratio(percentage, detail)) == 100:
                 plastic_object = {'material_type': 'plastic',
                                   'material': material, 'percent': -1}
-                try:
-                    plastic_percent = int(
-                        re.search("(\d+)", (re.search("(\d+)% " + material, detail).group())).group())
-                except:
-                    plastic_percent = int(
-                        re.search("(\d+)%", detail).group()[:-1])
+                
+                try: 
+                    for m_type in material_type: 
+                        plastic_percent = int(
+                        re.search("(\d+)", (re.search("(\d+)% " + m_type + " " + material, detail).group())).group())    
+                        print(plastic_percent)
+                        print(m_type + " " + material)
+                except: 
+                    plastic_percent = None
+
+                if not (plastic_percent):
+                    try:
+                        plastic_percent = int(
+                            re.search("(\d+)", (re.search("(\d+)% " + material, detail).group())).group())
+                    except:
+                        plastic_percent = int(
+                            re.search("(\d+)%", detail).group()[:-1])
+                print(material, ' and da ', plastic_percent)
                 plastic_object['percent'] = plastic_percent
                 return_list.append(plastic_object)
 

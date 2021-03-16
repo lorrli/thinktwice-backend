@@ -93,7 +93,7 @@ def scrape_brand(brand, product_url):
         scrape_data['product_name'] = driver.find_element_by_xpath("//*[@id='app']/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/h1/span").text
         scrape_data['product_color'] = driver.find_element_by_xpath("//*[@id='app']/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div[2]/h5/span").text
         scrape_data['product_price'] = driver.find_element_by_xpath("//*[@id='app']/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div[2]/div/div/div").text
-        # can't find description sometimes 
+        driver.execute_script("window.scrollTo(0, 900)") 
         description_button = driver.find_element_by_id("description")
         driver.execute_script("arguments[0].scrollIntoView();", description_button)
         description_button.click()
