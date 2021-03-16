@@ -2,6 +2,8 @@
 from flask import Flask, jsonify, request
 from database import db_session
 from models import Brand
+from scrape_product import scrape_product_name_overview, scrape_product_details
+from material_matching import calculate_material_composition
 
 application = Flask(__name__)
 
@@ -37,6 +39,29 @@ def get_brand_data():
         'url': record.url
     }
     response = jsonify(record_object)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@application.route('/scrape_product_name_overview', methods=['GET'])
+def scrape_product_name_overview_api():
+    brand = "gap"
+    url = "https://www.gapcanada.ca/browse/product.do?pid=544841223&rrec=true&mlink=5050,12413545,PDP_gapproduct2_rr_4&clink=12413545#pdp-page-content"
+    scrape_data = scrape_product_name_overview(brand, url)
+    print(scrape_data)
+    response = jsonify(scrape_data)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@application.route('/scrape_product_details', methods=['GET'])
+def scrape_product_details_api():
+    brand = "adidas"
+    url = "https://www.adidas.ca/en/cropped-tee/HB4758.html"
+    product_details = scrape_product_details(brand, url)
+    rating_details = calculate_material_composition(product_details)
+    print(rating_details)
+    response = jsonify(rating_details)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
