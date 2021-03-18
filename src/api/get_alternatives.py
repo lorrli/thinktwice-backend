@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from textblob import TextBlob
+from fuzzywuzzy import fuzz
 from scrape_product import scrape_for_alternatives
 
 
@@ -30,8 +31,8 @@ def get_query_list(brand, product_url):
     clothing = ['shirt', 'dress', 'pants', 'shorts', 'jeans', 'sweater', 'romper', 'jeggings', 'jacket', 'top',
                 'jumpsuit', 'socks', 'skort', 'skirt', 'joggers', 'sweatshirt', 'blazer', 'mask', 'boots', 'sandals', 'shoes']
 
-    alt_object = scrape_for_alternatives(brand, product_url)
-    product_name_blob = TextBlob(alt_object['product_name'].lower())
+    product_object = scrape_for_alternatives(brand, product_url)
+    product_name_blob = TextBlob(product_object['product_name'].lower())
     phrases = product_name_blob.noun_phrases
     full_product_phrase = ''
     noun = ''
@@ -42,17 +43,35 @@ def get_query_list(brand, product_url):
     if not full_product_phrase:
         full_product_phrase = max(phrases, key=len)
 
-    for word in full_product_phrase.split()[-2:]: 
+    for word in full_product_phrase.split()[-2:]:
         for word_pair in product_name_blob.tags:
-            if word_pair[1][:2] == 'NN' and word_pair[0] == word: 
+            if word_pair[1][:2] == 'NN' and word_pair[0] == word:
                 noun = word
     if full_product_phrase.split()[-1] == 'socks':
         noun = full_product_phrase.split()[-1]
     if not noun:
         noun = full_product_phrase.split()[1]
-    query1 = " ".join([alt_object['product_color'], " ".join(full_product_phrase.split()[-2:])])
+    query1 = " ".join([product_object['product_color'],
+                       " ".join(full_product_phrase.split()[-2:])])
     query2 = " ".join(full_product_phrase.split()[-2:])
     query_list = [query1, query2, noun]
-    return query_list
+    return query_list, product_object['product_name']
 
+def filter_alt_list(alt_data, orig_product_title):
+    # for filtering the alternative list when it is size > 2 
+    match_score = []
+    final_alt_list = []
+        
+    for alternative in alt_data:
+        match_score.append(fuzz.token_set_ratio(alternative['product_name'], orig_product_title))
+    # finds max
+    max_score = max(match_score)
+    final_alt_list.append(alt_data[match_score.index(max_score)])
+    # removes from original list
+    match_score.remove(max_score)
+    alt_data.remove(final_alt_list[0])
+    # finds 2nd max 
+    max_score = max(match_score)
+    final_alt_list.append(alt_data[match_score.index(max_score)])
 
+    return final_alt_list
