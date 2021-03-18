@@ -30,20 +30,15 @@ def scrape_product_name_overview (brand, product_url):
         scrape_data['product_overview'] = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, "/html/body/main/section/div[4]/section/div[2]/div/div/div/article/p"))).text
     
     elif brand == 'gap' or brand == 'oldnavy':
-        actions = ActionChains(driver)
-        # dismissing promo popup, if exists
-        details_drawer = driver.find_elements_by_class_name('pdp-drawer-trigger')
-        try:
-            details_drawer[0].click()
-        except: 
-            actions.send_keys(Keys.SPACE)
-            actions.perform()
+        oldnavy_gap_setup(brand, driver)
+
         # Product title (try gap, except old navy)
         try:
             scrape_data['product_name'] = driver.find_element_by_class_name('pdp-mfe-1stdnu').text 
         except:
             scrape_data['product_name'] = driver.find_element_by_class_name('pdp-mfe-1r6sye').text 
         # Product overview, if exists
+        details_drawer = driver.find_elements_by_class_name('pdp-drawer-trigger')
         details_drawer[0].click()
         try: 
             scrape_data['product_overview'] = driver.find_element_by_class_name("product-information-item__overview").text
@@ -85,16 +80,12 @@ def scrape_product_details(brand, product_url):
             product_details.append(detail.text.lower())
     
     elif brand == 'gap' or brand == 'oldnavy':
-        actions = ActionChains(driver)
-        # dismissing promo popup, if exists
+        oldnavy_gap_setup(brand, driver)
+        
         details_drawer = driver.find_elements_by_class_name('pdp-drawer-trigger')
-        try:
-            details_drawer[0].click()
-        except: 
-            actions.send_keys(Keys.SPACE)
-            actions.perform()
-            details_drawer[0].click()
+        details_drawer[0].click()
         # Product details bullet points 
+        product_details_raw = WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, 'product-information-item__list-item')))
         product_details_raw = driver.find_elements_by_class_name("product-information-item__list-item")
         product_details = []
         for detail in product_details_raw: 
@@ -139,18 +130,12 @@ def scrape_for_alternatives(brand, product_url):
             scrape_data['product_price'] = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//*[@id='hero-pdp__buy']/div/div[1]/span[2]/div/span/span/span"))).text
 
     elif brand == 'gap' or brand == 'oldnavy':
-        actions = ActionChains(driver)
-         # dismissing promo popup, if exists
-        details_drawer = driver.find_elements_by_class_name('pdp-drawer-trigger')
-        try:
-            details_drawer[0].click()
-        except: 
-            actions.send_keys(Keys.SPACE)
-            actions.perform()
-        # Product title (try gap, except old navy)
-        try:
+        oldnavy_gap_setup(brand, driver)
+
+        # Product title (gap, else old navy)
+        if brand == 'gap':
             scrape_data['product_name'] = driver.find_element_by_class_name('pdp-mfe-1stdnu').text 
-        except:
+        else:
             scrape_data['product_name'] = driver.find_element_by_class_name('pdp-mfe-1r6sye').text 
          # Product color
         scrape_data['product_color'] = driver.find_element_by_xpath("//*[@id='swatch-label--Color']").text[7:]
@@ -168,3 +153,18 @@ def scrape_for_alternatives(brand, product_url):
 
     driver.quit() 
     return scrape_data
+
+def oldnavy_gap_setup(brand, driver):
+    # removes the promo drawer from the DOM 
+    promo_drawer = driver.find_element_by_id("wrapper-for-mobile-app")
+    driver.execute_script("""var promo_drawer = arguments[0];
+    promo_drawer.parentNode.removeChild(promo_drawer);
+        """, promo_drawer)
+    
+    # closes coupon popup
+    if brand == 'gap':
+        try: 
+            close_button = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[6]/div/div[2]/div[1]/button')))
+            close_button.click()
+        except:
+            pass
