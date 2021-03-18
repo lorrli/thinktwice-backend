@@ -113,7 +113,3 @@ def determine_sustainability_rating(material_comp_object):
         sus_rating_details['sus_rating'] = False
 
     return sus_rating_details
-
-print(calculate_material_composition(['95% cashmere/5% wool blend made from pre-consumer cashmere waste that’s sorted according to color and other properties, mechanically broken down and spun into new yarn', 
-'button-front closure', 'fully fashioned armholes', 'full-length sleeve', '1x1 rib finishing at neck, cuffs and hem', 'hip length', 'country of origin\nmade in china.', 
-'weight\n238 g (8.4 oz)', '95% recycled cashmere/5% wool blend made from pre-consumer cashmere waste that’s sorted according to color and other properties, mechanically broken down and spun into new yarn']))
