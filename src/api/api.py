@@ -2,7 +2,7 @@
 from flask import Flask, jsonify, request
 from database import db_session
 from models import Brand
-from scrape_product import scrape_product_name_overview, scrape_product_details
+from scrape_product import scrape_product_name_overview, scrape_product_details, scrape_setup
 from material_matching import calculate_material_composition
 
 application = Flask(__name__)
@@ -65,7 +65,9 @@ http://127.0.0.1:5000/scrape_product_details?brand=patagonia&url=https://www.pat
 def scrape_product_details_api():
     brand = request.args.get('brand')
     url = request.args.get('url')
-    product_details = scrape_product_details(brand, url)
+    driver = scrape_setup(url)
+    product_details = scrape_product_details(brand, url, driver)
+    driver.quit()
     rating_details = calculate_material_composition(product_details)
     response = jsonify(rating_details)
     response.headers.add('Access-Control-Allow-Origin', '*')

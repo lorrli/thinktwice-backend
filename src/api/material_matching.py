@@ -1,12 +1,19 @@
 from fuzzywuzzy import fuzz
 import re
 
+
 def calculate_material_composition(product_details):
     material_type = ['recycled', 'organic']
-    all_materials = ['polyester', 'acrylic', 'wool', 'cashmere', 'viscose', 'nylon', 'tencel', 'hemp', 'cotton',
-                     'denim', 'linen', 'modal', 'faux fur', 'fleece', 'leather', 'lyocell', 'elastane', 'spandex']
-    plastic_materials = ['polyester', 'acrylic',
-                         'nylon', 'fleece', 'elastane', 'spandex']
+    all_materials = [
+        'polyester', 'acrylic', 'wool', 'cashmere', 'viscose', 'nylon',
+        'tencel', 'hemp', 'cotton', 'denim', 'linen', 'modal', 'faux fur',
+        'fleece', 'leather', 'lyocell', 'elastane', 'spandex', 'elasterell',
+        'lycra'
+    ]
+    plastic_materials = [
+        'polyester', 'acrylic', 'nylon', 'fleece', 'elastane', 'spandex',
+        'elasterell', 'lycra'
+    ]
     percentage = '%'
     return_list = []
     reduced_details = []
@@ -16,8 +23,7 @@ def calculate_material_composition(product_details):
         for m_type in material_type:
             if (fuzz.partial_ratio(m_type, detail)) > 95:
                 reduced_details.append(detail)
-                return_list.append(
-                    {'material_type': m_type})
+                return_list.append({'material_type': m_type})
         if reduced_details:
             for index, detail in enumerate(reduced_details):
                 for material in all_materials:
@@ -27,38 +33,55 @@ def calculate_material_composition(product_details):
                             return_list[index]['percent'] = int(
                                 re.search("(\d+)%", detail).group()[:-1])
 
-    for detail in product_details: 
-        if (fuzz.partial_ratio('cashmere', detail)) > 95: 
-            cashmere_object = {'material_type': 'organic',
-                                'material': 'cashmere'}
-            try: 
-                cashmere_object['percent'] = int(re.search("(\d+)", (re.search("(\d+)% recycled " + material, detail).group())).group())
+    for detail in product_details:
+        if (fuzz.partial_ratio('cashmere', detail)) > 95:
+            cashmere_object = {
+                'material_type': 'organic',
+                'material': 'cashmere'
+            }
+            try:
+                cashmere_object['percent'] = int(
+                    re.search("(\d+)",
+                              (re.search("(\d+)% recycled " + material,
+                                         detail).group())).group())
             except:
                 cashmere_object['percent'] = None
-            
+
             if not (cashmere_object['percent']):
-                try:    
-                    cashmere_object['percent'] = int(re.search("(\d+)", (re.search("(\d+)% cashmere", detail).group())).group())
-                except: 
-                    cashmere_object['percent'] = int(re.search("(\d+)%", detail).group()[:-1])
+                try:
+                    cashmere_object['percent'] = int(
+                        re.search("(\d+)", (re.search(
+                            "(\d+)% cashmere", detail).group())).group())
+                except:
+                    cashmere_object['percent'] = int(
+                        re.search("(\d+)%", detail).group()[:-1])
             return_list.append(cashmere_object)
 
     # check for plastic materials
     for index, detail in enumerate(product_details):
         for material in plastic_materials:
-            if (fuzz.partial_ratio(material, detail)) > 95 and (fuzz.partial_ratio(percentage, detail)) == 100:
-                plastic_object = {'material_type': 'plastic',
-                                  'material': material, 'percent': -1}
+            if (fuzz.partial_ratio(material, detail)) > 95 and (
+                    fuzz.partial_ratio(percentage, detail)) == 100:
+                plastic_object = {
+                    'material_type': 'plastic',
+                    'material': material,
+                    'percent': -1
+                }
                 try:
                     for m_type in material_type:
                         plastic_percent = int(
-                            re.search("(\d+)", (re.search("(\d+)% " + m_type + " " + material, detail).group())).group())
+                            re.search(
+                                "(\d+)",
+                                (re.search("(\d+)% " + m_type + " " + material,
+                                           detail).group())).group())
                 except:
                     plastic_percent = None
                 if not (plastic_percent):
                     try:
                         plastic_percent = int(
-                            re.search("(\d+)", (re.search("(\d+)% " + material, detail).group())).group())
+                            re.search("(\d+)",
+                                      (re.search("(\d+)% " + material,
+                                                 detail).group())).group())
                     except:
                         plastic_percent = int(
                             re.search("(\d+)%", detail).group()[:-1])
@@ -67,7 +90,8 @@ def calculate_material_composition(product_details):
     # data cleansing of list of dicts
     incomplete_indices = []
     for index, item in enumerate(return_list):
-        if ('percent' not in item) or ('material' not in item) or ('material_type' not in item):
+        if ('percent' not in item) or ('material' not in item) or (
+                'material_type' not in item):
             incomplete_indices.append(index)
     if incomplete_indices:
         for index in incomplete_indices:
@@ -83,6 +107,7 @@ def calculate_material_composition(product_details):
             clean_return_list.append(d)
     return determine_sustainability_rating(clean_return_list)
 
+
 def determine_sustainability_rating(material_comp_object):
     sus_rating_details = {}
     sus_rating_details['organic_materials'] = []
@@ -91,25 +116,24 @@ def determine_sustainability_rating(material_comp_object):
     sus_rating_details['recycled_percents'] = []
     sus_rating_details['plastic_materials'] = []
     sus_rating_details['plastic_percent'] = 0
-    for item in material_comp_object: 
-        if item['material_type'] == 'organic': 
+    for item in material_comp_object:
+        if item['material_type'] == 'organic':
             sus_rating_details['organic_materials'].append(item['material'])
             sus_rating_details['organic_percents'].append(item['percent'])
-        elif item['material_type'] == 'recycled': 
+        elif item['material_type'] == 'recycled':
             sus_rating_details['recycled_materials'].append(item['material'])
             sus_rating_details['recycled_percents'].append(item['percent'])
         elif item['material_type'] == 'plastic':
             sus_rating_details['plastic_materials'].append(item['material'])
             sus_rating_details['plastic_percent'] += item['percent']
-        else: 
+        else:
             print("Material Type Error, continuing to calculate")
             pass
-    
-    if (sum(sus_rating_details['organic_percents']) >= 95 and sum(sus_rating_details['recycled_percents']) >= 20) \
-        or (sum(sus_rating_details['organic_percents']) >= 95 and sus_rating_details['plastic_percent'] == 0) \
-        or (sus_rating_details['plastic_percent'] == 0 and sum(sus_rating_details['recycled_percents']) >= 20):
+
+    if (sum(sus_rating_details['organic_percents']) >= 95 or sum(sus_rating_details['recycled_percents']) >= 20 \
+        or sus_rating_details['plastic_percent'] == 0):
         sus_rating_details['sus_rating'] = True
-    else: 
+    else:
         sus_rating_details['sus_rating'] = False
 
     return sus_rating_details
