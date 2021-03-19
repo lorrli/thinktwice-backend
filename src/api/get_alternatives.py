@@ -13,11 +13,8 @@ from material_matching import calculate_material_composition
 
 
 def check_sus_rating(brand_name, item, driver):
-    print("CHCKING SUS")
     product_details = scrape_product_details(brand_name, item, driver)
-    print(product_details)
     rating_details = calculate_material_composition(product_details)
-    print(rating_details)
     return rating_details
 
 
@@ -71,7 +68,7 @@ def get_alternatives(query_list):
                 if rating_details['sus_rating'] == True:
                     products.add(item2)
         except:
-            print("nothing found")
+            print("nothing found, trying new search term")
 
         length = len(products)
         if length >= 2:
@@ -135,7 +132,7 @@ def get_alternatives(query_list):
                     if rating_details['sus_rating'] == True:
                         products.add(item1)
         except:
-            print("nothing found")
+            print("nothing found, trying new search term")
 
         length = len(products)
         if length >= 2:

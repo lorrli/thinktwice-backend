@@ -80,16 +80,16 @@ example request:
 http://127.0.0.1:5000/scrape_product_details?brand=patagonia&url=https://www.patagonia.com/product/mens-recycled-cashmere-crewneck-sweater/50525.html?dwvar_50525_color=FGE
 '''
 @application.route('/get_alternatives', methods=['GET'])
-def scrape_product_details_api():
+def get_alternatives_api():
     brand = request.args.get('brand')
     url = request.args.get('url')
     query_list, product_name = get_query_list(brand, url)
     alt_data = get_alternatives(query_list)
-    if len(alt_data) > 2: 
+    if len(alt_data) > 2:
         final_list = filter_alt_list(alt_data, product_name)
-    else: 
+    else:
         final_list = alt_data
-    response = jsonify(rating_details)
+    response = jsonify(final_list)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
