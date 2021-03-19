@@ -4,6 +4,7 @@ from database import db_session
 from models import Brand
 from scrape_product import scrape_product_name_overview, scrape_product_details, scrape_setup
 from material_matching import calculate_material_composition
+from get_alternatives import get_alternatives, get_query_list, filter_alt_list
 
 application = Flask(__name__)
 
@@ -69,6 +70,25 @@ def scrape_product_details_api():
     product_details = scrape_product_details(brand, url, driver)
     driver.quit()
     rating_details = calculate_material_composition(product_details)
+    response = jsonify(rating_details)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+'''
+example request:
+http://127.0.0.1:5000/scrape_product_details?brand=patagonia&url=https://www.patagonia.com/product/mens-recycled-cashmere-crewneck-sweater/50525.html?dwvar_50525_color=FGE
+'''
+@application.route('/get_alternatives', methods=['GET'])
+def scrape_product_details_api():
+    brand = request.args.get('brand')
+    url = request.args.get('url')
+    query_list, product_name = get_query_list(brand, url)
+    alt_data = get_alternatives(query_list)
+    if len(alt_data) > 2: 
+        final_list = filter_alt_list(alt_data, product_name)
+    else: 
+        final_list = alt_data
     response = jsonify(rating_details)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
